@@ -4,6 +4,8 @@ An interactive, single-file web app for identifying birds commonly seen in Centr
 
 **Vibe coded by Grok** (built by xAI) — 2026
 
+**🌐 Live Demo:** [https://kelly990918.github.io/canto-birding-central-park/](https://kelly990918.github.io/canto-birding-central-park/)
+
 ---
 
 ## English
@@ -26,9 +28,10 @@ This is a lightweight, self-contained bird identification tool focused on specie
 - Works completely offline once the HTML file is downloaded
 
 ### How to Use
-1. Open the `central-park-birds.html` file in any modern web browser.
-2. Use the search bar or click the filter buttons to narrow down results.
-3. Click the ℹ️ icon next to “分類（目）” or “遷徙狀態” to view explanations of the categories.
+You can try it directly online here:  
+[https://kelly990918.github.io/canto-birding-central-park/](https://kelly990918.github.io/canto-birding-central-park/)
+
+Or download the HTML file and open it locally in any browser.
 
 ### Tech Stack
 - Single HTML file
@@ -60,9 +63,10 @@ This project was vibe coded by **Grok**, built by **xAI**.
 - 下載 HTML 檔案後可完全離線使用
 
 ### 使用方法
-1. 用任何現代瀏覽器打開 `central-park-birds.html`
-2. 用搜尋欄或篩選按鈕縮窄範圍
-3. 點擊「分類（目）」或「遷徙狀態」旁邊嘅 ℹ️ 圖示，可以睇到分類同遷徙狀態嘅解釋
+你可以直接喺線上試用：  
+[https://kelly990918.github.io/canto-birding-central-park/](https://kelly990918.github.io/canto-birding-central-park/)
+
+或者下載 HTML 檔案，喺瀏覽器入面開啟即可。
 
 ### 技術說明
 - 單一 HTML 檔案
