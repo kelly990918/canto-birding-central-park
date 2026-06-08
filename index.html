@@ -84,7 +84,6 @@
             </div>
 
             <div class="space-y-6 text-sm">
-                <!-- 分類說明 -->
                 <div>
                     <div class="font-medium text-stone-700 mb-3">分類（目）特徵</div>
                     <div class="space-y-2.5 text-stone-600">
@@ -99,7 +98,6 @@
                     </div>
                 </div>
 
-                <!-- 遷徙狀態說明 -->
                 <div>
                     <div class="font-medium text-stone-700 mb-3">遷徙狀態</div>
                     <div class="space-y-2 text-stone-600">
@@ -122,7 +120,7 @@
 
     <script>
         const birds = [
-            // === 雁鴨類 ===
+            // 雁鴨類
             { english: "Mallard", cantonese: "綠頭鴨", scientific: "Anas platyrhynchos", type: "雁鴨類", status: "常留鳥", features: ["公園池塘同 Reservoir 最常見", "雄鳥頭頸翠綠，雌鳥全身斑紋", "食植物同水生昆蟲", "北美洲原生種"] },
             { english: "Canada Goose", cantonese: "加拿大雁", scientific: "Branta canadensis", type: "雁鴨類", status: "常留鳥", features: ["Reservoir 同大草地成群出現", "黑頭白頰明顯", "食草", "北美洲原生種，但數量有時過多"] },
             { english: "Mute Swan", cantonese: "疣鼻天鵝", scientific: "Cygnus olor", type: "雁鴨類", status: "常留鳥", features: ["Reservoir 偶見", "體型最大，頸長", "歐洲及亞洲外來種，19世紀引入", "具入侵性"] },
@@ -132,20 +130,20 @@
             { english: "American Black Duck", cantonese: "美洲黑鴨", scientific: "Anas rubripes", type: "雁鴨類", status: "冬候鳥", features: ["冬季較常見", "外形似雌性綠頭鴨但顏色較深", "北美洲原生種"] },
             { english: "Hooded Merganser", cantonese: "冠鴨", scientific: "Lophodytes cucullatus", type: "雁鴨類", status: "冬候鳥", features: ["冬日 Reservoir 偶見", "雄鳥頭有扇形冠羽", "北美洲原生種"] },
 
-            // === 鷺類 ===
+            // 鷺類
             { english: "Great Blue Heron", cantonese: "大藍鷺", scientific: "Ardea herodias", type: "鷺類", status: "夏候鳥", features: ["沿 Reservoir 同池塘邊覓食", "體型高大，飛行時頸部彎曲", "食魚同青蛙", "北美洲原生種"] },
             { english: "Green Heron", cantonese: "綠鷺", scientific: "Butorides virescens", type: "鷺類", status: "夏候鳥", features: ["細小，常匿藏喺岸邊植物", "食細魚同昆蟲", "有時會用工具誘魚", "北美洲原生種"] },
             { english: "Black-crowned Night Heron", cantonese: "夜鷺", scientific: "Nycticorax nycticorax", type: "鷺類", status: "夏候鳥", features: ["黃昏同夜晚較活躍", "頭頂黑色，眼睛紅色", "北美洲原生種"] },
             { english: "Great Egret", cantonese: "大白鷺", scientific: "Ardea alba", type: "鷺類", status: "夏候鳥", features: ["春夏偶見", "全身白色，嘴黃色", "食魚", "北美洲原生種"] },
 
-            // === 猛禽類 ===
+            // 猛禽類
             { english: "Red-tailed Hawk", cantonese: "紅尾鷹", scientific: "Buteo jamaicensis", type: "猛禽類", status: "常留鳥", features: ["公園最常見猛禽", "尾巴紅褐色", "食老鼠同細鳥", "北美洲原生種", "著名個體有 Pale Male"] },
             { english: "Cooper's Hawk", cantonese: "庫珀鷹", scientific: "Accipiter cooperii", type: "猛禽類", status: "常留鳥", features: ["Ramble 同 North Woods 常見", "尾巴長而圓", "專捕小鳥", "北美洲原生種"] },
             { english: "Sharp-shinned Hawk", cantonese: "尖尾鷹", scientific: "Accipiter striatus", type: "猛禽類", status: "常留鳥", features: ["細型猛禽，秋冬較多", "尾巴方形", "北美洲原生種"] },
             { english: "Peregrine Falcon", cantonese: "遊隼", scientific: "Falco peregrinus", type: "猛禽類", status: "常留鳥", features: ["速度極快", "頭部有黑色鬍鬚紋", "北美洲原生種"] },
             { english: "Red-shouldered Hawk", cantonese: "赤肩鷹", scientific: "Buteo lineatus", type: "猛禽類", status: "常留鳥", features: ["較少見", "叫聲尖銳", "北美洲原生種"] },
 
-            // === 啄木鳥類 ===
+            // 啄木鳥類
             { english: "Red-bellied Woodpecker", cantonese: "紅腹啄木鳥", scientific: "Melanerpes carolinus", type: "啄木鳥類", status: "常留鳥", features: ["公園最常見啄木鳥", "頭頂紅色，聲音響亮", "食昆蟲同樹汁", "北美洲原生種"] },
             { english: "Downy Woodpecker", cantonese: "絨啄木鳥", scientific: "Dryobates pubescens", type: "啄木鳥類", status: "常留鳥", features: ["細型啄木鳥", "雄鳥頭後有紅點，雌鳥冇", "鍾意細樹枝", "北美洲原生種"] },
             { english: "Hairy Woodpecker", cantonese: "毛啄木鳥", scientific: "Dryobates villosus", type: "啄木鳥類", status: "常留鳥", features: ["比絨啄木鳥大，嘴較長", "北美洲原生種"] },
@@ -153,7 +151,7 @@
             { english: "Yellow-bellied Sapsucker", cantonese: "黃腹吸汁啄木鳥", scientific: "Sphyrapicus varius", type: "啄木鳥類", status: "過境鳥", features: ["會喺樹幹鑿出整齊小孔吸樹汁", "春秋較常見", "北美洲原生種"] },
             { english: "Pileated Woodpecker", cantonese: "北美黑啄木鳥", scientific: "Dryocopus pileatus", type: "啄木鳥類", status: "常留鳥", features: ["體型最大", "頭有紅冠", "North Woods 偶見", "北美洲原生種"] },
 
-            // === 雀形目 ===
+            // 雀形目
             { english: "Yellow-rumped Warbler", cantonese: "黃腰白喉林鶯", scientific: "Setophaga coronata", type: "雀形目", status: "冬候鳥", features: ["冬季最常見林鶯", "腰部有黃色斑塊", "Ramble 同 North Woods 成群出現", "北美洲原生種"] },
             { english: "Black-throated Blue Warbler", cantonese: "藍喉林鶯", scientific: "Setophaga caerulescens", type: "雀形目", status: "過境鳥", features: ["春季遷徙高峰常見", "雄鳥藍色身體配黑色喉", "北美洲原生種"] },
             { english: "Magnolia Warbler", cantonese: "北美黃林鶯", scientific: "Setophaga magnolia", type: "雀形目", status: "過境鳥", features: ["春季常見", "胸前有黑色條紋，尾巴有白斑", "北美洲原生種"] },
@@ -187,16 +185,16 @@
             { english: "Red-winged Blackbird", cantonese: "紅翅黑鸝", scientific: "Agelaius phoeniceus", type: "雀形目", status: "夏候鳥", features: ["雄鳥有紅色肩章", "鍾意水邊同濕地", "北美洲原生種"] },
             { english: "Common Grackle", cantonese: "普通美洲鷯哥", scientific: "Quiscalus quiscula", type: "雀形目", status: "夏候鳥", features: ["全身黑色有光澤", "眼睛黃色", "成群出現", "北美洲原生種"] },
 
-            // === 鷗類 ===
+            // 鷗類
             { english: "Ring-billed Gull", cantonese: "環嘴鷗", scientific: "Larus delawarensis", type: "鷗類", status: "常留鳥", features: ["最常見海鷗", "嘴上有黑色環", "食雜食", "北美洲原生種"] },
             { english: "Herring Gull", cantonese: "銀鷗", scientific: "Larus argentatus", type: "鷗類", status: "常留鳥", features: ["體型較大", "成年鳥頭白，嘴黃色有紅點", "北美洲原生種"] },
             { english: "Great Black-backed Gull", cantonese: "大黑背鷗", scientific: "Larus marinus", type: "鷗類", status: "常留鳥", features: ["體型最大", "背部黑色", "北美洲原生種"] },
 
-            // === 鴿類 ===
+            // 鴿類
             { english: "Mourning Dove", cantonese: "哀鴿", scientific: "Zenaida macroura", type: "鴿類", status: "常留鳥", features: ["叫聲低沉似哀鳴", "尾巴有白邊", "食種子", "北美洲原生種"] },
             { english: "Rock Pigeon", cantonese: "原鴿", scientific: "Columba livia", type: "鴿類", status: "常留鳥", features: ["公園最常見", "頸部有綠紫光澤", "歐洲及中東外來種，長期馴化"] },
 
-            // === 雨燕類 ===
+            // 雨燕類
             { english: "Chimney Swift", cantonese: "煙囪雨燕", scientific: "Chaetura pelagica", type: "雨燕類", status: "夏候鳥", features: ["飛行似新月，唔會停喺樹上", "食空中昆蟲", "北美洲原生種"] }
         ];
 
@@ -309,4 +307,4 @@
         init();
     </script>
 </body>
-</html>
+</html>gi
