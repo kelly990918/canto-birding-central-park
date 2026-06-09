@@ -41,4 +41,3 @@ Each bird card is clear and easy to read, helping you quickly identify common bi
 - Clean, modern interface designed for quick use in the field
 
 Vibe coded by Grok ✨
-```
