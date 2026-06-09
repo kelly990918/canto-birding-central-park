@@ -3,308 +3,1323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中央公園粵語鳥類圖鑑</title>
+    <title>中央公園鳥類圖鑑</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; }
-        .cantonese { font-family: "Noto Sans TC", "PingFang TC", system-ui, sans-serif; }
-        .bird-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bird-card:hover { transform: translateY(-2px); }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&amp;family=Noto+Sans+HK:wght@400;500;700&amp;display=swap');
+        
+        body {
+            font-family: 'Noto Sans HK', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+        }
+        
+        .bird-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .bird-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        .filter-chip {
+            transition: all 0.1s ease;
+        }
+        
+        .filter-chip.active {
+            background-color: #166534;
+            color: white;
+            border-color: #166534;
+        }
+        
+        .bird-emoji {
+            font-size: 2.1rem;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+        }
+        
+        .taxonomy-badge {
+            font-size: 0.72rem;
+            padding: 0.1rem 0.55rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        
+        .modal {
+            animation: modalPopIn 0.2s ease-out forwards;
+        }
+        
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .card-header-accent {
+            height: 5px;
+            background: linear-gradient(to right, #166534, #4ade80);
+        }
+        
+        .notes-ul {
+            font-size: 0.875rem;
+            line-height: 1.65;
+        }
+        
+        .notes-ul li {
+            margin-bottom: 0.35rem;
+            position: relative;
+            padding-left: 0.15rem;
+        }
+        
+        .notes-ul li:last-child {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
-    <div class="max-w-7xl mx-auto px-5 py-6">
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-semibold tracking-tight">中央公園粵語鳥類圖鑑</h1>
-            <p class="text-stone-600 text-sm mt-0.5">98 種常見鳥類</p>
-        </div>
-
-        <!-- Search -->
-        <div class="mb-4">
-            <div class="relative">
-                <i class="fa-solid fa-search absolute left-4 top-3 text-stone-400"></i>
-                <input id="search" type="text" placeholder="搜尋鳥名（英文或粵語）..." 
-                       class="w-full pl-11 pr-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400 text-sm">
-            </div>
-        </div>
-
-        <!-- Filters + Info Icon -->
-        <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-5 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-11 h-11 bg-emerald-800 rounded-2xl flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-dove text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-emerald-900">中央公園鳥類圖鑑</h1>
+                    </div>
+                </div>
                 
-                <!-- 分類（目） -->
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-xs text-stone-500 font-medium">分類（目）</div>
-                        <button onclick="showCategoryModal()" class="text-stone-400 hover:text-stone-600">
-                            <i class="fa-solid fa-info-circle"></i>
-                        </button>
+                <div class="hidden md:flex items-center gap-x-2 text-sm">
+                    <div class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-tree text-emerald-600"></i>
+                        <span class="font-medium">大西洋候鳥通道熱點</span>
                     </div>
-                    <div id="type-filters" class="flex flex-wrap gap-2"></div>
                 </div>
-
-                <!-- 遷徙狀態 -->
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-xs text-stone-500 font-medium">遷徙狀態</div>
-                        <button onclick="showCategoryModal()" class="text-stone-400 hover:text-stone-600">
-                            <i class="fa-solid fa-info-circle"></i>
-                        </button>
-                    </div>
-                    <div id="status-filters" class="flex flex-wrap gap-2"></div>
-                </div>
-
             </div>
         </div>
+    </header>
 
-        <div class="flex items-center justify-between mb-3 px-1">
-            <div id="results-count" class="text-sm text-stone-500"></div>
-            <button onclick="resetFilters()" class="text-sm px-3 py-1.5 text-stone-500 hover:text-stone-700 flex items-center gap-1.5">
-                <i class="fa-solid fa-undo text-xs"></i>
-                <span>重設</span>
-            </button>
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+        
+        <!-- Controls -->
+        <div class="bg-white rounded-3xl shadow-sm border border-stone-200 p-5 mb-6">
+            <div class="flex flex-col lg:flex-row gap-4">
+                
+                <!-- Search -->
+                <div class="flex-1">
+                    <label class="text-xs font-semibold tracking-widest text-emerald-700 block mb-1.5">搜尋鳥類</label>
+                    <div class="relative">
+                        <input id="search-input" 
+                               type="text" 
+                               placeholder="輸入英文、粵語或學名（例如：Northern Cardinal / 北美紅雀 / Cardinalis）"
+                               class="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 focus:border-emerald-600 rounded-2xl text-sm placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                               onkeyup="applyFilters()">
+                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-stone-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                
+                <!-- Taxonomy Filter -->
+                <div>
+                    <label class="text-xs font-semibold tracking-widest text-emerald-700 flex items-center gap-x-1.5 mb-2">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>按鳥類目類篩選（可多選）</span>
+                    </label>
+                    <div id="taxonomy-filters" class="flex flex-wrap gap-1.5">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Migration Status Filter -->
+                <div>
+                    <label class="text-xs font-semibold tracking-widest text-emerald-700 flex items-center gap-x-1.5 mb-2">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>按遷徙狀態篩選（可多選）</span>
+                    </label>
+                    <div id="status-filters" class="flex flex-wrap gap-1.5">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+                <button onclick="resetFilters()" 
+                        class="text-xs flex items-center gap-x-1.5 px-3 py-1.5 text-stone-500 hover:text-stone-700 transition-colors">
+                    <i class="fa-solid fa-undo text-xs"></i>
+                    <span>重設所有篩選</span>
+                </button>
+                
+                <div class="text-[10px] text-stone-500 hidden md:block">
+                    提示：點擊標籤可切換篩選 • 支援離線使用
+                </div>
+            </div>
         </div>
 
         <!-- Bird Grid -->
-        <div id="bird-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div id="bird-grid" 
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <!-- Cards populated dynamically by JavaScript -->
+        </div>
+
+        <div id="no-results" class="hidden mt-8 text-center py-12">
+            <i class="fa-solid fa-search text-4xl text-stone-300 mb-3"></i>
+            <p class="text-stone-500">冇搵到符合嘅鳥類。試下清空部分篩選條件。</p>
+        </div>
+
+        <!-- Footer info -->
+        <div class="mt-12 pt-8 border-t border-stone-200 text-center">
+            <div class="max-w-md mx-auto">
+                <p class="text-xs text-stone-500 leading-relaxed">
+                    資料主要參考 eBird、NYC Audubon 及 Central Park Conservancy 記錄。<br>
+                    適合搭配 <span class="font-medium">Merlin Bird ID</span> App 同 eBird 使用。觀鳥時請保持安靜，尊重野生動物。
+                </p>
+                <div class="mt-3 text-[10px] text-emerald-700 font-medium flex items-center justify-center gap-x-2">
+                    <span>為香港人同粵語使用者而設</span>
+                    <span class="w-px h-3 bg-emerald-200"></span>
+                    <span>單一 HTML 檔案 • 完全離線可用</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="category-modal" onclick="hideCategoryModal()" 
-         class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <!-- Info Modal -->
+    <div id="info-modal" onclick="if (event.target.id === 'info-modal') hideInfoModal()" 
+         class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div onclick="event.stopImmediatePropagation()" 
-             class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[85vh] overflow-y-auto">
+             class="modal bg-white w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
             
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">分類與遷徙狀態說明</h3>
-                <button onclick="hideCategoryModal()" class="text-2xl text-stone-400 hover:text-stone-600">×</button>
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b flex items-center justify-between bg-emerald-900 text-white">
+                <div class="flex items-center gap-x-3">
+                    <i class="fa-solid fa-book text-xl"></i>
+                    <h3 class="text-xl font-semibold">圖鑑分類同遷徙術語解釋</h3>
+                </div>
+                <button onclick="hideInfoModal()" class="text-white/80 hover:text-white text-2xl leading-none w-8 h-8 flex items-center justify-center">&times;</button>
             </div>
-
-            <div class="space-y-6 text-sm">
+            
+            <div class="p-6 overflow-auto text-sm space-y-6 text-stone-700">
+                
                 <div>
-                    <div class="font-medium text-stone-700 mb-3">分類（目）特徵</div>
-                    <div class="space-y-2.5 text-stone-600">
-                        <div><strong class="text-stone-700">雁鴨類</strong>：水鳥，腳有蹼，喙扁平，主要食植物或水生昆蟲。</div>
-                        <div><strong class="text-stone-700">鷺類</strong>：長頸長腿涉禽，站立或緩慢行走覓食。</div>
-                        <div><strong class="text-stone-700">猛禽類</strong>：肉食性猛禽，視力極佳，利爪及鉤喙。</div>
-                        <div><strong class="text-stone-700">啄木鳥類</strong>：善用硬喙敲擊樹幹，舌頭長而有倒鉤。</div>
-                        <div><strong class="text-stone-700">雀形目</strong>：最大類群，多為小型鳴禽，鳴叫能力強。</div>
-                        <div><strong class="text-stone-700">鷗類</strong>：多在水域活動，雜食性，飛行能力強。</div>
-                        <div><strong class="text-stone-700">鴿類</strong>：體型較圓，善於飛行，食種子為主。</div>
-                        <div><strong class="text-stone-700">雨燕類</strong>：空中生活，幾乎全在飛行中覓食。</div>
+                    <h4 class="font-bold text-emerald-800 mb-2 flex items-center gap-x-2">
+                        <i class="fa-solid fa-tags w-4"></i> 
+                        鳥類目類（Linnaean Taxonomy）
+                    </h4>
+                    <div class="space-y-3 pl-1">
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-sky-100 text-sky-800 whitespace-nowrap">雁鴨類</span>
+                            <span class="text-xs">雁鴨目 (Anseriformes) — 水鳥，包括鴨、雁、天鵝。喺公園湖泊同水邊常見。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-teal-100 text-teal-800 whitespace-nowrap">鷺類</span>
+                            <span class="text-xs">鷺科 (Ardeidae) — 長頸長腳涉禽，包括蒼鷺、白鷺、夜鷺。善於站立捕魚。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-rose-100 text-rose-800 whitespace-nowrap">猛禽類</span>
+                            <span class="text-xs">猛禽目 (Accipitriformes / Falconiformes) — 包括鵟、隼、鷹、魚鷹。公園內常見紅尾鵟同遊隼。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-amber-100 text-amber-800 whitespace-nowrap">鴿類</span>
+                            <span class="text-xs">鴿形目 (Columbiformes) — 鴿同鳩。原鴿（野鴿）係引入種。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-orange-100 text-orange-800 whitespace-nowrap">啄木鳥類</span>
+                            <span class="text-xs">啄木鳥目 (Piciformes) — 善於啄樹皮捉蟲。紅腹啄木鳥同絨啄木鳥全年常見。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-violet-100 text-violet-800 whitespace-nowrap">雀形目</span>
+                            <span class="text-xs">Passeriformes — 最大鳥目，超過一半鳥種。包括松鴉、山雀、知更鳥、紅雀、林鶯等鳴禽。</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="taxonomy-badge bg-slate-100 text-slate-800 whitespace-nowrap">鷗類</span>
+                            <span class="text-xs">鷗科 (Laridae) — 海鷗同燕鷗。雖然公園唔靠海，但環嘴鷗同銀鷗常現身。</span>
+                        </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-medium text-stone-700 mb-3">遷徙狀態</div>
-                    <div class="space-y-2 text-stone-600">
-                        <div><strong class="text-stone-700">常留鳥</strong>：全年都可以在公園見到。</div>
-                        <div><strong class="text-stone-700">夏候鳥</strong>：春夏季節來繁殖，秋季離開。</div>
-                        <div><strong class="text-stone-700">冬候鳥</strong>：秋冬季節來過冬，春季北返。</div>
-                        <div><strong class="text-stone-700">過境鳥</strong>：春秋遷徙期間途經公園短暫停留。</div>
+                    <h4 class="font-bold text-emerald-800 mb-2 flex items-center gap-x-2">
+                        <i class="fa-solid fa-plane w-4"></i> 
+                        遷徙狀態（Migration Status）
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 pl-1 text-xs">
+                        <div class="flex items-start gap-2">
+                            <span class="taxonomy-badge bg-emerald-100 text-emerald-800 mt-0.5">常留鳥</span>
+                            <span>全年留喺中央公園繁殖或過冬，數量相對穩定。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="taxonomy-badge bg-amber-100 text-amber-800 mt-0.5">夏候鳥</span>
+                            <span>春夏由南方飛嚟繁殖，秋季南返。公園係重要繁殖地。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="taxonomy-badge bg-sky-100 text-sky-800 mt-0.5">冬候鳥</span>
+                            <span>秋冬季由北方飛嚟過冬，春季北返。白喉雀同暗眼燈草鵐係典型例子。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="taxonomy-badge bg-orange-100 text-orange-800 mt-0.5">過境鳥</span>
+                            <span>春季同秋季遷徙途中短暫停留。中央公園係大西洋候鳥通道上著名「鳥類熱點」。</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-6 text-right">
-                <button onclick="hideCategoryModal()" 
-                        class="px-5 py-2 text-sm bg-stone-100 hover:bg-stone-200 rounded-xl transition-colors">
-                    關閉
+                <div class="pt-2 border-t text-[10px] text-stone-500">
+                    註：部分鳥種可能同時有幾種狀態（例如部分個體留低、部分遷徙）。資料以 eBird 統計為主，實際觀察會因年份同季節略有差異。
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-stone-50 border-t flex justify-end">
+                <button onclick="hideInfoModal()" 
+                        class="px-6 py-2 text-sm font-semibold bg-emerald-800 hover:bg-emerald-900 transition-colors text-white rounded-2xl">
+                    明白，開始觀鳥！
                 </button>
             </div>
         </div>
     </div>
 
     <script>
+        // Tailwind script
+        function initializeTailwind() {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            'hk': ['Noto Sans HK', 'Noto Sans TC', 'system-ui', 'sans-serif']
+                        }
+                    }
+                }
+            };
+        }
+
+        // Bird Data - 52 common Central Park species
+        // notes are now arrays of bullet points for <ul> rendering
         const birds = [
-            // 雁鴨類
-            { english: "Mallard", cantonese: "綠頭鴨", scientific: "Anas platyrhynchos", type: "雁鴨類", status: "常留鳥", features: ["公園池塘同 Reservoir 最常見", "雄鳥頭頸翠綠，雌鳥全身斑紋", "食植物同水生昆蟲", "北美洲原生種"] },
-            { english: "Canada Goose", cantonese: "加拿大雁", scientific: "Branta canadensis", type: "雁鴨類", status: "常留鳥", features: ["Reservoir 同大草地成群出現", "黑頭白頰明顯", "食草", "北美洲原生種，但數量有時過多"] },
-            { english: "Mute Swan", cantonese: "疣鼻天鵝", scientific: "Cygnus olor", type: "雁鴨類", status: "常留鳥", features: ["Reservoir 偶見", "體型最大，頸長", "歐洲及亞洲外來種，19世紀引入", "具入侵性"] },
-            { english: "Wood Duck", cantonese: "林鴨", scientific: "Aix sponsa", type: "雁鴨類", status: "夏候鳥", features: ["春夏較常見", "雄鳥顏色華麗有羽冠", "鍾意有樹洞嘅水邊", "北美洲原生種"] },
-            { english: "Northern Shoveler", cantonese: "琵嘴鴨", scientific: "Spatula clypeata", type: "雁鴨類", status: "冬候鳥", features: ["冬日常見", "嘴闊如匙，用嚟濾食浮游生物", "北美洲原生種"] },
-            { english: "Gadwall", cantonese: "赤頸鴨", scientific: "Mareca strepera", type: "雁鴨類", status: "冬候鳥", features: ["冬日常見", "雄鳥灰色，頭部有黑白斑紋", "北美洲原生種"] },
-            { english: "American Black Duck", cantonese: "美洲黑鴨", scientific: "Anas rubripes", type: "雁鴨類", status: "冬候鳥", features: ["冬季較常見", "外形似雌性綠頭鴨但顏色較深", "北美洲原生種"] },
-            { english: "Hooded Merganser", cantonese: "冠鴨", scientific: "Lophodytes cucullatus", type: "雁鴨類", status: "冬候鳥", features: ["冬日 Reservoir 偶見", "雄鳥頭有扇形冠羽", "北美洲原生種"] },
+            // === 雁鴨類 (Anseriformes) ===
+            {
+                id: 1,
+                english: "Mallard",
+                cantonese: "綠頭鴨",
+                scientific: "Anas platyrhynchos",
+                taxonomy: "雁鴨類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🦆",
+                notes: [
+                    "公鴨頭部鮮綠、嘴黃色；母鴨全身褐色有斑紋，極易分辨。",
+                    "常喺 The Lake 同 The Pond 游水覓食，冬季數量明顯增加。",
+                    "善於潛水同「up-end」食水底植物，適應城市環境能力強。"
+                ]
+            },
+            {
+                id: 2,
+                english: "Canada Goose",
+                cantonese: "加拿大雁",
+                scientific: "Branta canadensis",
+                taxonomy: "雁鴨類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🪿",
+                notes: [
+                    "大型黑頭白頰雁，叫聲大聲而有特色「hon hon」。",
+                    "公園草地同湖邊成群出現，部分族群全年留低繁殖。",
+                    "秋季可見大隊南飛，但公園有穩定留鳥族群。"
+                ]
+            },
+            {
+                id: 3,
+                english: "Mute Swan",
+                cantonese: "疣鼻天鵝",
+                scientific: "Cygnus olor",
+                taxonomy: "雁鴨類",
+                migration: "常留鳥",
+                origin: "引入",
+                emoji: "🦢",
+                notes: [
+                    "優雅大型白鳥，橙紅色嘴有明顯黑疣，極具辨識度。",
+                    "19世紀由歐洲引入北美，公園 The Lake 有穩定族群。",
+                    "屬入侵種，會霸佔資源並攻擊其他水鳥，需留意生態影響。"
+                ]
+            },
+            {
+                id: 4,
+                english: "Wood Duck",
+                cantonese: "木鴨",
+                scientific: "Aix sponsa",
+                taxonomy: "雁鴨類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦆",
+                notes: [
+                    "北美最漂亮的鴨種之一，公鴨有彩虹色頭部同紅眼。",
+                    "母鴨有白色眼圈，喜歡有樹洞的水邊環境。",
+                    "春夏喺公園繁殖，秋季多數南返，警覺性高易受驚。"
+                ]
+            },
+            {
+                id: 5,
+                english: "Gadwall",
+                cantonese: "赤頸鴨",
+                scientific: "Mareca strepera",
+                taxonomy: "雁鴨類",
+                migration: "冬候鳥",
+                origin: "原生",
+                emoji: "🦆",
+                notes: [
+                    "中型灰褐色鴨，公鴨頭灰、黑尾上翹，母鴨較灰。",
+                    "冬季常見，喜歡較靜的水域，形態比其他鴨更素雅。",
+                    "比 Mallard 更低調，冬季數量較多。"
+                ]
+            },
+            {
+                id: 6,
+                english: "Northern Shoveler",
+                cantonese: "琵嘴鴨",
+                scientific: "Spatula clypeata",
+                taxonomy: "雁鴨類",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🦆",
+                notes: [
+                    "最易認的特徵係又長又闊的黑色匙狀嘴，用來濾食。",
+                    "公鴨頭綠、身白、腹栗紅，春季同秋季遷徙時出現。",
+                    "會喺水面快速濾食浮游生物，動作有特色。"
+                ]
+            },
 
-            // 鷺類
-            { english: "Great Blue Heron", cantonese: "大藍鷺", scientific: "Ardea herodias", type: "鷺類", status: "夏候鳥", features: ["沿 Reservoir 同池塘邊覓食", "體型高大，飛行時頸部彎曲", "食魚同青蛙", "北美洲原生種"] },
-            { english: "Green Heron", cantonese: "綠鷺", scientific: "Butorides virescens", type: "鷺類", status: "夏候鳥", features: ["細小，常匿藏喺岸邊植物", "食細魚同昆蟲", "有時會用工具誘魚", "北美洲原生種"] },
-            { english: "Black-crowned Night Heron", cantonese: "夜鷺", scientific: "Nycticorax nycticorax", type: "鷺類", status: "夏候鳥", features: ["黃昏同夜晚較活躍", "頭頂黑色，眼睛紅色", "北美洲原生種"] },
-            { english: "Great Egret", cantonese: "大白鷺", scientific: "Ardea alba", type: "鷺類", status: "夏候鳥", features: ["春夏偶見", "全身白色，嘴黃色", "食魚", "北美洲原生種"] },
+            // === 鷺類 (Ardeidae) ===
+            {
+                id: 7,
+                english: "Great Blue Heron",
+                cantonese: "大藍鷺",
+                scientific: "Ardea herodias",
+                taxonomy: "鷺類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦩",
+                notes: [
+                    "北美最大鷺種，全身灰藍色，長頸呈S形，黃色長嘴。",
+                    "常獨立站喺湖邊或淺水緩慢捕魚，動作優雅。",
+                    "春夏繁殖，秋季多數南返，少數個體會留低過冬。"
+                ]
+            },
+            {
+                id: 8,
+                english: "Great Egret",
+                cantonese: "大白鷺",
+                scientific: "Ardea alba",
+                taxonomy: "鷺類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦩",
+                notes: [
+                    "純白大型鷺，黃色長嘴同黑腳，繁殖期有華麗長蓑羽。",
+                    "常同 Great Blue Heron 一齊出現，但更愛開闊淺水區。",
+                    "動作緩慢優雅，春夏常見，秋季多數南返。"
+                ]
+            },
+            {
+                id: 9,
+                english: "Snowy Egret",
+                cantonese: "雪鷺",
+                scientific: "Egretta thula",
+                taxonomy: "鷺類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦩",
+                notes: [
+                    "細過大白鷺，全白但嘴黑色、腳黃綠色，有黃色「腳套」。",
+                    "性情活躍，會喺淺水快速跑動捕捉小魚，動作敏捷。",
+                    "春夏常見，秋季南返，辨識度高。"
+                ]
+            },
+            {
+                id: 10,
+                english: "Green Heron",
+                cantonese: "綠鷺",
+                scientific: "Butorides virescens",
+                taxonomy: "鷺類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦩",
+                notes: [
+                    "細型暗綠色鷺，冠羽可豎起，匿喺岸邊樹叢或低枝。",
+                    "等待魚游近先突然出擊，叫聲尖銳「kyow」。",
+                    "公園較隱蔽水邊有機會見到，春夏繁殖。"
+                ]
+            },
+            {
+                id: 11,
+                english: "Black-crowned Night-Heron",
+                cantonese: "黑冠夜鷺",
+                scientific: "Nycticorax nycticorax",
+                taxonomy: "鷺類",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🦩",
+                notes: [
+                    "日間休息，黃昏同夜晚活躍，黑頂、白臉、灰身、紅眼。",
+                    "常成群聚集喺樹上休息，公園 The Ramble 同水邊樹林有記錄。",
+                    "春夏繁殖，秋季多數南返。"
+                ]
+            },
 
-            // 猛禽類
-            { english: "Red-tailed Hawk", cantonese: "紅尾鷹", scientific: "Buteo jamaicensis", type: "猛禽類", status: "常留鳥", features: ["公園最常見猛禽", "尾巴紅褐色", "食老鼠同細鳥", "北美洲原生種", "著名個體有 Pale Male"] },
-            { english: "Cooper's Hawk", cantonese: "庫珀鷹", scientific: "Accipiter cooperii", type: "猛禽類", status: "常留鳥", features: ["Ramble 同 North Woods 常見", "尾巴長而圓", "專捕小鳥", "北美洲原生種"] },
-            { english: "Sharp-shinned Hawk", cantonese: "尖尾鷹", scientific: "Accipiter striatus", type: "猛禽類", status: "常留鳥", features: ["細型猛禽，秋冬較多", "尾巴方形", "北美洲原生種"] },
-            { english: "Peregrine Falcon", cantonese: "遊隼", scientific: "Falco peregrinus", type: "猛禽類", status: "常留鳥", features: ["速度極快", "頭部有黑色鬍鬚紋", "北美洲原生種"] },
-            { english: "Red-shouldered Hawk", cantonese: "赤肩鷹", scientific: "Buteo lineatus", type: "猛禽類", status: "常留鳥", features: ["較少見", "叫聲尖銳", "北美洲原生種"] },
+            // === 猛禽類 ===
+            {
+                id: 12,
+                english: "Red-tailed Hawk",
+                cantonese: "紅尾鵟",
+                scientific: "Buteo jamaicensis",
+                taxonomy: "猛禽類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "公園最常見猛禽，成鳥尾羽紅棕色，極易認。",
+                    "常停喺高樹或燈柱上，展翅滑翔時可見淺色翼下。",
+                    "會捕鼠、鴿同小型鳥，全年可見，數量穩定。"
+                ]
+            },
+            {
+                id: 13,
+                english: "Cooper's Hawk",
+                cantonese: "庫珀鵟",
+                scientific: "Accipiter cooperii",
+                taxonomy: "猛禽類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "中型短圓翼鵟，成鳥頭灰、眼紅、胸有橫斑。",
+                    "擅長喺樹林中高速追捕小型鳥，動作敏捷。",
+                    "公園全年有，但秋季遷徙時較多。"
+                ]
+            },
+            {
+                id: 14,
+                english: "Sharp-shinned Hawk",
+                cantonese: "尖尾鵟",
+                scientific: "Accipiter striatus",
+                taxonomy: "猛禽類",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "細過 Cooper's Hawk，尾更方，幼鳥有明顯縱紋。",
+                    "秋季大量過境，公園係觀察「accipiter flight」好地方。",
+                    "動作極敏捷，專捕小型鳥。"
+                ]
+            },
+            {
+                id: 15,
+                english: "Broad-winged Hawk",
+                cantonese: "寬翅鵟",
+                scientific: "Buteo platypterus",
+                taxonomy: "猛禽類",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "春季同秋季遷徙高峰期常見，翼下有明顯黑白橫帶。",
+                    "常成群高空盤旋（kettle），公園上空有時可見數百隻。",
+                    "過境時數量可觀，值得留意。"
+                ]
+            },
+            {
+                id: 16,
+                english: "American Kestrel",
+                cantonese: "美洲隼",
+                scientific: "Falco sparverius",
+                taxonomy: "猛禽類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "細型隼，有紅背同藍翼，常停喺電線或高點搵獵物。",
+                    "公園草地同開闊地有機會見到，叫聲尖「klee klee」。",
+                    "全年可見，但春夏較活躍。"
+                ]
+            },
+            {
+                id: 17,
+                english: "Peregrine Falcon",
+                cantonese: "遊隼",
+                scientific: "Falco peregrinus",
+                taxonomy: "猛禽類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "速度最快嘅鳥，俯衝可達 300+ km/h，公園有穩定繁殖對。",
+                    "藍灰背、黑頭帽，會捕鴿同水鳥。",
+                    "常見於摩天大樓同橋樑附近，全年可見。"
+                ]
+            },
+            {
+                id: 18,
+                english: "Osprey",
+                cantonese: "魚鷹",
+                scientific: "Pandion haliaetus",
+                taxonomy: "猛禽類",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🦅",
+                notes: [
+                    "專食魚，腳有倒刺，春季同秋季遷徙時飛過公園上空。",
+                    "翼長而弓形，經常盤旋，叫聲清亮「cheep cheep」。",
+                    "過境時較常見，值得留意。"
+                ]
+            },
 
-            // 啄木鳥類
-            { english: "Red-bellied Woodpecker", cantonese: "紅腹啄木鳥", scientific: "Melanerpes carolinus", type: "啄木鳥類", status: "常留鳥", features: ["公園最常見啄木鳥", "頭頂紅色，聲音響亮", "食昆蟲同樹汁", "北美洲原生種"] },
-            { english: "Downy Woodpecker", cantonese: "絨啄木鳥", scientific: "Dryobates pubescens", type: "啄木鳥類", status: "常留鳥", features: ["細型啄木鳥", "雄鳥頭後有紅點，雌鳥冇", "鍾意細樹枝", "北美洲原生種"] },
-            { english: "Hairy Woodpecker", cantonese: "毛啄木鳥", scientific: "Dryobates villosus", type: "啄木鳥類", status: "常留鳥", features: ["比絨啄木鳥大，嘴較長", "北美洲原生種"] },
-            { english: "Northern Flicker", cantonese: "北撲翅鴝", scientific: "Colaptes auratus", type: "啄木鳥類", status: "常留鳥", features: ["常喺草地覓食螞蟻", "尾巴下面黃色，飛行時明顯", "北美洲原生種"] },
-            { english: "Yellow-bellied Sapsucker", cantonese: "黃腹吸汁啄木鳥", scientific: "Sphyrapicus varius", type: "啄木鳥類", status: "過境鳥", features: ["會喺樹幹鑿出整齊小孔吸樹汁", "春秋較常見", "北美洲原生種"] },
-            { english: "Pileated Woodpecker", cantonese: "北美黑啄木鳥", scientific: "Dryocopus pileatus", type: "啄木鳥類", status: "常留鳥", features: ["體型最大", "頭有紅冠", "North Woods 偶見", "北美洲原生種"] },
+            // === 鴿類 ===
+            {
+                id: 19,
+                english: "Rock Pigeon",
+                cantonese: "原鴿 / 野鴿",
+                scientific: "Columba livia",
+                taxonomy: "鴿類",
+                migration: "常留鳥",
+                origin: "引入",
+                emoji: "🕊️",
+                notes: [
+                    "公園最普遍鳥類之一，顏色多變（灰、黑、白、斑）。",
+                    "原產歐亞，引入後野化，成群喺廣場同建築覓食。",
+                    "屬入侵種，但已完全適應城市生活。"
+                ]
+            },
+            {
+                id: 20,
+                english: "Mourning Dove",
+                cantonese: "哀鴿",
+                scientific: "Zenaida macroura",
+                taxonomy: "鴿類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🕊️",
+                notes: [
+                    "優雅細型鴿，有長尖尾同「哀傷」叫聲，全身淡褐灰。",
+                    "公園草地同小徑常見，飛行時翼會發出「whistle」聲。",
+                    "全年留鳥，數量穩定。"
+                ]
+            },
 
-            // 雀形目
-            { english: "Yellow-rumped Warbler", cantonese: "黃腰白喉林鶯", scientific: "Setophaga coronata", type: "雀形目", status: "冬候鳥", features: ["冬季最常見林鶯", "腰部有黃色斑塊", "Ramble 同 North Woods 成群出現", "北美洲原生種"] },
-            { english: "Black-throated Blue Warbler", cantonese: "藍喉林鶯", scientific: "Setophaga caerulescens", type: "雀形目", status: "過境鳥", features: ["春季遷徙高峰常見", "雄鳥藍色身體配黑色喉", "北美洲原生種"] },
-            { english: "Magnolia Warbler", cantonese: "北美黃林鶯", scientific: "Setophaga magnolia", type: "雀形目", status: "過境鳥", features: ["春季常見", "胸前有黑色條紋，尾巴有白斑", "北美洲原生種"] },
-            { english: "Black-and-white Warbler", cantonese: "黑白林鶯", scientific: "Mniotilta varia", type: "雀形目", status: "過境鳥", features: ["黑白條紋明顯，似樹幹上爬行嘅斑馬", "鍾意樹幹同粗枝", "北美洲原生種"] },
-            { english: "Black-throated Green Warbler", cantonese: "黑喉綠林鶯", scientific: "Setophaga virens", type: "雀形目", status: "過境鳥", features: ["春季常見", "頭頂黃綠色，喉嚨黑色", "北美洲原生種"] },
-            { english: "Chestnut-sided Warbler", cantonese: "栗腹林鶯", scientific: "Setophaga pensylvanica", type: "雀形目", status: "過境鳥", features: ["春季遷徙時常見", "胸側有栗色條紋", "北美洲原生種"] },
-            { english: "Common Yellowthroat", cantonese: "普通黃喉地鶯", scientific: "Geothlypis trichas", type: "雀形目", status: "夏候鳥", features: ["雄鳥有黑色面具", "雌鳥面部黃色", "鍾意密林同水邊植物", "北美洲原生種"] },
-            { english: "American Redstart", cantonese: "橙尾鴝鶯", scientific: "Setophaga ruticilla", type: "雀形目", status: "過境鳥", features: ["好活躍，經常張開橙色尾巴", "春秋遷徙時多", "北美洲原生種"] },
-            { english: "Ovenbird", cantonese: "灶鳥", scientific: "Seiurus aurocapilla", type: "雀形目", status: "過境鳥", features: ["喺林底行路似小雞", "頭頂有橙色條紋", "北美洲原生種"] },
-            { english: "Northern Parula", cantonese: "北美藍林鶯", scientific: "Setophaga americana", type: "雀形目", status: "過境鳥", features: ["春季常見", "藍色身體配黃色胸", "北美洲原生種"] },
-            { english: "American Robin", cantonese: "旅鶇", scientific: "Turdus migratorius", type: "雀形目", status: "常留鳥", features: ["草地最常見", "雄鳥胸部橙紅", "食蚯蚓同漿果", "北美洲原生種", "康涅狄格州、密芝根州州鳥"] },
-            { english: "Wood Thrush", cantonese: "林鶇", scientific: "Hylocichla mustelina", type: "雀形目", status: "夏候鳥", features: ["春夏出現", "叫聲好聽", "鍾意有遮蔭嘅林地", "北美洲原生種"] },
-            { english: "Hermit Thrush", cantonese: "隱居鶇", scientific: "Catharus guttatus", type: "雀形目", status: "冬候鳥", features: ["冬季常見", "尾巴會向上翹", "食漿果同昆蟲", "北美洲原生種"] },
-            { english: "Northern Cardinal", cantonese: "紅雀", scientific: "Cardinalis cardinalis", type: "雀形目", status: "常留鳥", features: ["雄鳥全身鮮紅，雌鳥褐色", "冠羽明顯", "食種子同昆蟲", "北美洲原生種", "多個州州鳥"] },
-            { english: "Song Sparrow", cantonese: "歌雀", scientific: "Melospiza melodia", type: "雀形目", status: "常留鳥", features: ["胸前有明顯黑斑", "歌聲多變", "食種子同昆蟲", "北美洲原生種"] },
-            { english: "White-throated Sparrow", cantonese: "白喉帶鵐", scientific: "Zonotrichia albicollis", type: "雀形目", status: "冬候鳥", features: ["頭部有黑白條紋", "喉嚨白色", "冬季成群出現", "北美洲原生種"] },
-            { english: "White-crowned Sparrow", cantonese: "白冠帶鵐", scientific: "Zonotrichia leucophrys", type: "雀形目", status: "冬候鳥", features: ["頭頂有明顯黑白條紋", "北美洲原生種"] },
-            { english: "Dark-eyed Junco", cantonese: "暗眼燈草鵐", scientific: "Junco hyemalis", type: "雀形目", status: "冬候鳥", features: ["冬季常見", "身體灰色，腹部白色", "食種子", "北美洲原生種"] },
-            { english: "Tufted Titmouse", cantonese: "簇山雀", scientific: "Baeolophus bicolor", type: "雀形目", status: "常留鳥", features: ["頭頂有小冠", "叫聲清脆", "食昆蟲同種子", "北美洲原生種"] },
-            { english: "Black-capped Chickadee", cantonese: "黑頂山雀", scientific: "Poecile atricapillus", type: "雀形目", status: "常留鳥", features: ["好奇心強，會接近人類", "頭黑身白", "北美洲原生種"] },
-            { english: "White-breasted Nuthatch", cantonese: "白胸鳾", scientific: "Sitta carolinensis", type: "雀形目", status: "常留鳥", features: ["倒吊喺樹幹上爬行", "叫聲似小喇叭", "北美洲原生種"] },
-            { english: "Red-breasted Nuthatch", cantonese: "紅胸鳾", scientific: "Sitta canadensis", type: "雀形目", status: "冬候鳥", features: ["冬季偶見", "胸部有紅色", "北美洲原生種"] },
-            { english: "Blue Jay", cantonese: "冠藍鴉", scientific: "Cyanocitta cristata", type: "雀形目", status: "常留鳥", features: ["大聲而且聰明", "頭頂有冠", "食種子同細小動物", "北美洲原生種"] },
-            { english: "American Crow", cantonese: "美洲烏鴉", scientific: "Corvus brachyrhynchos", type: "雀形目", status: "常留鳥", features: ["全黑，群居", "智力高，會用工具", "北美洲原生種"] },
-            { english: "Fish Crow", cantonese: "魚鴉", scientific: "Corvus ossifragus", type: "雀形目", status: "常留鳥", features: ["叫聲同美洲烏鴉有分別", "北美洲原生種"] },
-            { english: "European Starling", cantonese: "歐洲椋鳥", scientific: "Sturnus vulgaris", type: "雀形目", status: "常留鳥", features: ["冬季羽毛有白點", "善於模仿其他鳥叫聲", "歐洲外來種，1890年引入", "入侵性極強"] },
-            { english: "House Sparrow", cantonese: "家麻雀", scientific: "Passer domesticus", type: "雀形目", status: "常留鳥", features: ["最常見", "雄鳥頭部有黑喉", "歐亞大陸外來種，19世紀引入", "具入侵性"] },
-            { english: "Gray Catbird", cantonese: "灰貓鳥", scientific: "Dumetella carolinensis", type: "雀形目", status: "夏候鳥", features: ["叫聲似貓叫", "全身灰色，尾巴下面紅色", "北美洲原生種"] },
-            { english: "Brown Thrasher", cantonese: "褐嘲鶇", scientific: "Toxostoma rufum", type: "雀形目", status: "夏候鳥", features: ["長尾巴，有彎曲嘅嘴", "食昆蟲同果實", "北美洲原生種"] },
-            { english: "Baltimore Oriole", cantonese: "橙腹擬黃鸝", scientific: "Icterus galbula", type: "雀形目", status: "夏候鳥", features: ["春夏出現", "雄鳥橙黑分明", "食昆蟲同果實", "北美洲原生種", "馬里蘭州州鳥"] },
-            { english: "Red-winged Blackbird", cantonese: "紅翅黑鸝", scientific: "Agelaius phoeniceus", type: "雀形目", status: "夏候鳥", features: ["雄鳥有紅色肩章", "鍾意水邊同濕地", "北美洲原生種"] },
-            { english: "Common Grackle", cantonese: "普通美洲鷯哥", scientific: "Quiscalus quiscula", type: "雀形目", status: "夏候鳥", features: ["全身黑色有光澤", "眼睛黃色", "成群出現", "北美洲原生種"] },
+            // === 啄木鳥類 ===
+            {
+                id: 21,
+                english: "Red-bellied Woodpecker",
+                cantonese: "紅腹啄木鳥",
+                scientific: "Melanerpes carolinus",
+                taxonomy: "啄木鳥類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🪵",
+                notes: [
+                    "公園最常見啄木鳥，紅色頭頂同枕部，腹部有淡紅暈。",
+                    "叫聲大聲「churr churr」，會喺樹幹同樹枝敲擊捉蟲。",
+                    "亦食果實同種子，全年可見。"
+                ]
+            },
+            {
+                id: 22,
+                english: "Downy Woodpecker",
+                cantonese: "絨啄木鳥",
+                scientific: "Dryobates pubescens",
+                taxonomy: "啄木鳥類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🪵",
+                notes: [
+                    "細型黑白啄木鳥，有短嘴同白背，雄鳥後枕有紅斑。",
+                    "常喺細枝同灌木上活動，叫聲尖「pik」。",
+                    "全年常見，動作活潑。"
+                ]
+            },
+            {
+                id: 23,
+                english: "Northern Flicker",
+                cantonese: "北美撲翅鴝",
+                scientific: "Colaptes auratus",
+                taxonomy: "啄木鳥類",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🪵",
+                notes: [
+                    "大型啄木鳥，有黃色或紅色翼下，常喺草地捉蟻。",
+                    "飛行時有明顯白色臀部，叫聲響亮「wicka wicka」。",
+                    "全年可見，春季較活躍。"
+                ]
+            },
+            {
+                id: 24,
+                english: "Yellow-bellied Sapsucker",
+                cantonese: "黃腹吸汁啄木鳥",
+                scientific: "Sphyrapicus varius",
+                taxonomy: "啄木鳥類",
+                migration: "冬候鳥",
+                origin: "原生",
+                emoji: "🪵",
+                notes: [
+                    "冬季常見，紅額同紅喉（雄鳥），會喺樹皮鑿小洞吸樹汁。",
+                    "同時食被吸引嚟嘅昆蟲，公園多種樹木有佢嘅痕跡。",
+                    "冬候鳥，春季北返。"
+                ]
+            },
 
-            // 鷗類
-            { english: "Ring-billed Gull", cantonese: "環嘴鷗", scientific: "Larus delawarensis", type: "鷗類", status: "常留鳥", features: ["最常見海鷗", "嘴上有黑色環", "食雜食", "北美洲原生種"] },
-            { english: "Herring Gull", cantonese: "銀鷗", scientific: "Larus argentatus", type: "鷗類", status: "常留鳥", features: ["體型較大", "成年鳥頭白，嘴黃色有紅點", "北美洲原生種"] },
-            { english: "Great Black-backed Gull", cantonese: "大黑背鷗", scientific: "Larus marinus", type: "鷗類", status: "常留鳥", features: ["體型最大", "背部黑色", "北美洲原生種"] },
-
-            // 鴿類
-            { english: "Mourning Dove", cantonese: "哀鴿", scientific: "Zenaida macroura", type: "鴿類", status: "常留鳥", features: ["叫聲低沉似哀鳴", "尾巴有白邊", "食種子", "北美洲原生種"] },
-            { english: "Rock Pigeon", cantonese: "原鴿", scientific: "Columba livia", type: "鴿類", status: "常留鳥", features: ["公園最常見", "頸部有綠紫光澤", "歐洲及中東外來種，長期馴化"] },
-
-            // 雨燕類
-            { english: "Chimney Swift", cantonese: "煙囪雨燕", scientific: "Chaetura pelagica", type: "雨燕類", status: "夏候鳥", features: ["飛行似新月，唔會停喺樹上", "食空中昆蟲", "北美洲原生種"] }
+            // === 雀形目 ===
+            {
+                id: 25,
+                english: "Blue Jay",
+                cantonese: "藍松鴉",
+                scientific: "Cyanocitta cristata",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "鮮藍色冠羽同翅膀，面部黑白，叫聲多變。",
+                    "公園全年常見，會成群或單獨出現，聰明但有時霸道。",
+                    "會模仿其他鳥叫聲。"
+                ]
+            },
+            {
+                id: 26,
+                english: "American Crow",
+                cantonese: "美國烏鴉",
+                scientific: "Corvus brachyrhynchos",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦‍⬛",
+                notes: [
+                    "全黑大型鳥，嘴粗壯，叫聲「caw caw」。",
+                    "公園草地同樹上成群，極度聰明，會使用工具同記住人類面孔。",
+                    "全年穩定，數量多。"
+                ]
+            },
+            {
+                id: 27,
+                english: "Black-capped Chickadee",
+                cantonese: "黑頭山雀",
+                scientific: "Poecile atricapillus",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "細型活潑山雀，黑頭白臉，叫聲「chick-a-dee-dee-dee」。",
+                    "公園灌木同樹林常見，會喺人手取食，極度親人。",
+                    "全年留鳥，數量穩定。"
+                ]
+            },
+            {
+                id: 28,
+                english: "Tufted Titmouse",
+                cantonese: "簇山雀",
+                scientific: "Baeolophus bicolor",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "灰色小鳥，有明顯灰冠羽，叫聲清亮「peter peter peter」。",
+                    "常同 chickadee 一齊活動，公園樹林同灌木叢全年有。",
+                    "動作活潑，容易觀察。"
+                ]
+            },
+            {
+                id: 29,
+                english: "White-breasted Nuthatch",
+                cantonese: "白胸鳾",
+                scientific: "Sitta carolinensis",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "藍灰背、白臉黑眼線，特徵係倒吊喺樹幹上向下行。",
+                    "叫聲鼻音「yank yank」，公園大樹上常見。",
+                    "食蟲同種子，全年可見。"
+                ]
+            },
+            {
+                id: 30,
+                english: "American Robin",
+                cantonese: "美洲知更鳥",
+                scientific: "Turdus migratorius",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "公園最常見大型雀鳥，橙紅胸、黃色嘴，春季叫聲優美。",
+                    "會喺草地拉蟲，冬季有時成群出現。",
+                    "全年可見但春季最活躍。"
+                ]
+            },
+            {
+                id: 31,
+                english: "Northern Mockingbird",
+                cantonese: "北美嘲鶇",
+                scientific: "Mimus polyglottos",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "灰色長尾鳥，善於模仿其他鳥叫聲（包括手機鈴聲）。",
+                    "公園灌木同草地邊緣常見，繁殖期雄鳥會喺高點唱歌好耐。",
+                    "全年留鳥，歌聲多變。"
+                ]
+            },
+            {
+                id: 32,
+                english: "Gray Catbird",
+                cantonese: "灰貓鳥",
+                scientific: "Dumetella carolinensis",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "全灰色，尾下紅棕，叫聲似貓「mew」。",
+                    "春夏繁殖，秋季南返，喜歡 dense 灌木。",
+                    "公園 The Ramble 同邊緣常見。"
+                ]
+            },
+            {
+                id: 33,
+                english: "European Starling",
+                cantonese: "歐洲椋鳥",
+                scientific: "Sturnus vulgaris",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "入侵",
+                emoji: "🐦‍⬛",
+                notes: [
+                    "1890 年代引入，現已遍布北美，黑色有綠紫光澤。",
+                    "冬季有白斑，成群喧鬧，霸佔樹洞同鳥屋。",
+                    "屬入侵種，對本土鳥有競爭壓力。"
+                ]
+            },
+            {
+                id: 34,
+                english: "House Sparrow",
+                cantonese: "家麻雀",
+                scientific: "Passer domesticus",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "入侵",
+                emoji: "🐦",
+                notes: [
+                    "城市最常見小型雀，雄鳥黑喉白臉；雌鳥淡褐有眼線。",
+                    "原產歐亞，引入後野化，公園長椅同垃圾桶附近成群。",
+                    "屬入侵種，數量極多。"
+                ]
+            },
+            {
+                id: 35,
+                english: "Northern Cardinal",
+                cantonese: "北美紅雀",
+                scientific: "Cardinalis cardinalis",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "雄鳥鮮紅色、冠羽明顯；雌鳥褐紅色，叫聲清亮。",
+                    "公園灌木同樹林邊緣全年常見，極易認。",
+                    "全年留鳥，數量穩定。"
+                ]
+            },
+            {
+                id: 36,
+                english: "Song Sparrow",
+                cantonese: "歌雀",
+                scientific: "Melospiza melodia",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "褐色有胸斑紋，長尾，叫聲多變但有固定模式。",
+                    "公園草地同灌木常見，冬季有時同其他 sparrow 一齊出現。",
+                    "全年留鳥。"
+                ]
+            },
+            {
+                id: 37,
+                english: "White-throated Sparrow",
+                cantonese: "白喉雀",
+                scientific: "Zonotrichia albicollis",
+                taxonomy: "雀形目",
+                migration: "冬候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "冬季最常見 sparrow 之一，白喉、黃色眼上線。",
+                    "叫聲「Old Sam Peabody Peabody」，公園灌木同樹下草地成群。",
+                    "冬候鳥，春季北返。"
+                ]
+            },
+            {
+                id: 38,
+                english: "Dark-eyed Junco",
+                cantonese: "暗眼燈草鵐",
+                scientific: "Junco hyemalis",
+                taxonomy: "雀形目",
+                migration: "冬候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "冬季常見「snowbird」，slate gray 身、白腹、粉紅色嘴。",
+                    "公園草地同小徑邊成群跳動覓食，春季北返。",
+                    "冬候鳥，數量可觀。"
+                ]
+            },
+            {
+                id: 39,
+                english: "Red-winged Blackbird",
+                cantonese: "紅翅黑鸝",
+                scientific: "Agelaius phoeniceus",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦‍⬛",
+                notes: [
+                    "雄鳥全黑、紅黃肩章；雌鳥似大型 sparrow。",
+                    "春季叫聲「conk-la-reeee」，公園濕地同湖邊 reed 區繁殖。",
+                    "夏候鳥，秋季南返。"
+                ]
+            },
+            {
+                id: 40,
+                english: "Common Grackle",
+                cantonese: "普通鴝",
+                scientific: "Quiscalus quiscula",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦‍⬛",
+                notes: [
+                    "大型黑鳥有紫綠光澤，黃色眼，叫聲刺耳「creak」。",
+                    "公園草地同樹上成群，春夏常見。",
+                    "秋季有時大群南飛。"
+                ]
+            },
+            {
+                id: 41,
+                english: "Baltimore Oriole",
+                cantonese: "巴爾的摩黃鸝",
+                scientific: "Icterus galbula",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "春夏最靚鳥之一，雄鳥橙黑分明；雌鳥較黃綠。",
+                    "叫聲清亮 flute-like，公園高樹同 The Mall 附近常見。",
+                    "喜食橙同果實，夏候鳥。"
+                ]
+            },
+            {
+                id: 42,
+                english: "Cedar Waxwing",
+                cantonese: "雪松太平鳥",
+                scientific: "Bombycilla cedrorum",
+                taxonomy: "雀形目",
+                migration: "常留鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "優雅冠羽、黃尾端、紅色翼蠟片，成群出現。",
+                    "專食果實（尤其冬青同雪松），公園有時大群出現。",
+                    "動作優雅安靜，全年可見。"
+                ]
+            },
+            {
+                id: 43,
+                english: "Yellow-rumped Warbler",
+                cantonese: "黃腰白喉林鶯",
+                scientific: "Setophaga coronata",
+                taxonomy: "雀形目",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "秋季同冬季最常見 warbler，黃腰同黃色臀部明顯。",
+                    "春季有鮮黃色，公園樹林同灌木係遷徙時好地方。",
+                    "叫聲「chek」，過境鳥。"
+                ]
+            },
+            {
+                id: 44,
+                english: "Common Yellowthroat",
+                cantonese: "黃喉地鶯",
+                scientific: "Geothlypis trichas",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "雄鳥有黑面具同黃喉；雌鳥較素，叫聲「wichity wichity」。",
+                    "公園 dense 灌木同濕地邊緣繁殖，春夏活躍。",
+                    "夏候鳥。"
+                ]
+            },
+            {
+                id: 45,
+                english: "American Redstart",
+                cantonese: "橙尾鴝鶯",
+                scientific: "Setophaga ruticilla",
+                taxonomy: "雀形目",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "遷徙時常見 warbler，雄鳥黑橙色，尾同翼有橙斑。",
+                    "雌鳥黃綠，動作活躍，會扇尾展示橙色。",
+                    "公園樹冠層常見，過境鳥。"
+                ]
+            },
+            {
+                id: 46,
+                english: "Eastern Phoebe",
+                cantonese: "東方菲比鶲",
+                scientific: "Sayornis phoebe",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "細型灰褐色 flycatcher，尾不斷上下擺動，叫聲「fee-bee」。",
+                    "公園建築同橋下常見築巢，春夏繁殖。",
+                    "夏候鳥。"
+                ]
+            },
+            {
+                id: 47,
+                english: "Great Crested Flycatcher",
+                cantonese: "大冠鳳鶲",
+                scientific: "Myiarchus crinitus",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "大型有冠 flycatcher，黃色腹部同紅棕色尾，叫聲大聲「wheep」。",
+                    "公園高樹同樹洞繁殖，春夏可聞。",
+                    "夏候鳥。"
+                ]
+            },
+            {
+                id: 48,
+                english: "Warbling Vireo",
+                cantonese: "歌聲莺",
+                scientific: "Vireo gilvus",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "細型灰綠色，無明顯特徵但叫聲優美連續。",
+                    "公園高樹冠層常見，春夏繁殖，秋季南返。",
+                    "夏候鳥。"
+                ]
+            },
+            {
+                id: 49,
+                english: "Red-eyed Vireo",
+                cantonese: "紅眼莺",
+                scientific: "Vireo olivaceus",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "最常見 vireo，灰綠背、紅眼、白眉，叫聲似「question and answer」。",
+                    "公園樹林上層大量出現，夏候鳥。",
+                    "春夏活躍。"
+                ]
+            },
+            {
+                id: 50,
+                english: "Hermit Thrush",
+                cantonese: "隱士鶇",
+                scientific: "Catharus guttatus",
+                taxonomy: "雀形目",
+                migration: "過境鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "冬季同遷徙時常見，紅尾、斑點胸，叫聲優美 flute-like。",
+                    "公園地面同低層灌木常見，動作安靜。",
+                    "過境鳥同冬候鳥。"
+                ]
+            },
+            {
+                id: 51,
+                english: "Wood Thrush",
+                cantonese: "木鶇",
+                scientific: "Hylocichla mustelina",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "春夏公園經典鳥，紅褐色頭、斑點胸，叫聲極美「ee-oh-lay」。",
+                    "The Ramble 同較成熟樹林有機會聽到，夏候鳥。",
+                    "近年數量有下降趨勢。"
+                ]
+            },
+            {
+                id: 52,
+                english: "Yellow Warbler",
+                cantonese: "黃林鶯",
+                scientific: "Setophaga petechia",
+                taxonomy: "雀形目",
+                migration: "夏候鳥",
+                origin: "原生",
+                emoji: "🐦",
+                notes: [
+                    "全身鮮黃色，雄鳥胸有紅條紋，叫聲「sweet sweet sweet」。",
+                    "公園灌木同低樹春夏常見，繁殖期活躍。",
+                    "夏候鳥。"
+                ]
+            }
         ];
 
-        const types = [...new Set(birds.map(b => b.type))].sort();
-        const statuses = [...new Set(birds.map(b => b.status))];
+        // Populate taxonomy and status filter chips
+        let activeTaxonomy = new Set();
+        let activeStatus = new Set();
+        let currentSearch = '';
 
-        let activeTypeFilters = [];
-        let activeStatusFilters = [];
+        function createFilterChips() {
+            const taxonomyContainer = document.getElementById('taxonomy-filters');
+            const statusContainer = document.getElementById('status-filters');
+            
+            taxonomyContainer.innerHTML = '';
+            statusContainer.innerHTML = '';
 
-        function createFilterButtons(containerId, options, activeArray) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            options.forEach(option => {
-                const btn = document.createElement('button');
-                btn.className = `px-3 py-1 text-xs rounded-full border transition-colors ${activeArray.includes(option) ? 'filter-active border-green-700' : 'border-stone-300 hover:bg-stone-100'}`;
-                btn.textContent = option;
-                btn.onclick = () => {
-                    const index = activeArray.indexOf(option);
-                    if (index > -1) activeArray.splice(index, 1);
-                    else activeArray.push(option);
-                    renderBirds();
-                    createFilterButtons(containerId, options, activeArray);
-                };
-                container.appendChild(btn);
+            const taxonomies = [...new Set(birds.map(b => b.taxonomy))].sort();
+            const statuses = ['常留鳥', '夏候鳥', '冬候鳥', '過境鳥'];
+
+            taxonomies.forEach(tax => {
+                const chip = document.createElement('button');
+                chip.className = `filter-chip px-3 py-1 text-xs font-medium border border-stone-300 rounded-2xl hover:bg-stone-100 transition-colors bg-white text-stone-700`;
+                chip.textContent = tax;
+                chip.onclick = () => toggleTaxonomyFilter(tax, chip);
+                taxonomyContainer.appendChild(chip);
+            });
+
+            statuses.forEach(status => {
+                const chip = document.createElement('button');
+                let colorClass = '';
+                if (status === '常留鳥') colorClass = 'border-emerald-300 text-emerald-700';
+                else if (status === '夏候鳥') colorClass = 'border-amber-300 text-amber-700';
+                else if (status === '冬候鳥') colorClass = 'border-sky-300 text-sky-700';
+                else if (status === '過境鳥') colorClass = 'border-orange-300 text-orange-700';
+
+                chip.className = `filter-chip px-3 py-1 text-xs font-medium border rounded-2xl hover:bg-stone-100 transition-colors bg-white ${colorClass}`;
+                chip.textContent = status;
+                chip.onclick = () => toggleStatusFilter(status, chip);
+                statusContainer.appendChild(chip);
             });
         }
 
-        function renderBirds() {
-            const grid = document.getElementById('bird-grid');
-            const searchTerm = document.getElementById('search').value.toLowerCase().trim();
-            let filtered = birds;
-
-            if (searchTerm) {
-                filtered = filtered.filter(b =>
-                    b.english.toLowerCase().includes(searchTerm) ||
-                    b.cantonese.includes(searchTerm) ||
-                    b.scientific.toLowerCase().includes(searchTerm)
-                );
+        function toggleTaxonomyFilter(tax, chipElement) {
+            if (activeTaxonomy.has(tax)) {
+                activeTaxonomy.delete(tax);
+                chipElement.classList.remove('active', 'bg-emerald-800', 'text-white', 'border-emerald-800');
+                chipElement.classList.add('bg-white', 'text-stone-700', 'border-stone-300');
+            } else {
+                activeTaxonomy.add(tax);
+                chipElement.classList.add('active', 'bg-emerald-800', 'text-white', 'border-emerald-800');
+                chipElement.classList.remove('bg-white', 'text-stone-700', 'border-stone-300');
             }
-            if (activeTypeFilters.length > 0) filtered = filtered.filter(b => activeTypeFilters.includes(b.type));
-            if (activeStatusFilters.length > 0) filtered = filtered.filter(b => activeStatusFilters.includes(b.status));
+            applyFilters();
+        }
 
-            grid.innerHTML = '';
+        function toggleStatusFilter(status, chipElement) {
+            if (activeStatus.has(status)) {
+                activeStatus.delete(status);
+                chipElement.classList.remove('active', 'bg-emerald-800', 'text-white', 'border-emerald-800');
+                if (status === '常留鳥') chipElement.classList.add('border-emerald-300', 'text-emerald-700');
+                else if (status === '夏候鳥') chipElement.classList.add('border-amber-300', 'text-amber-700');
+                else if (status === '冬候鳥') chipElement.classList.add('border-sky-300', 'text-sky-700');
+                else if (status === '過境鳥') chipElement.classList.add('border-orange-300', 'text-orange-700');
+            } else {
+                activeStatus.add(status);
+                chipElement.classList.add('active', 'bg-emerald-800', 'text-white', 'border-emerald-800');
+                chipElement.classList.remove('border-emerald-300', 'text-emerald-700', 'border-amber-300', 'text-amber-700', 'border-sky-300', 'text-sky-700', 'border-orange-300', 'text-orange-700');
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            currentSearch = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            const filtered = birds.filter(bird => {
+                const matchesSearch = !currentSearch || 
+                    bird.english.toLowerCase().includes(currentSearch) ||
+                    bird.cantonese.toLowerCase().includes(currentSearch) ||
+                    bird.scientific.toLowerCase().includes(currentSearch);
+                
+                if (!matchesSearch) return false;
+
+                if (activeTaxonomy.size > 0 && !activeTaxonomy.has(bird.taxonomy)) {
+                    return false;
+                }
+
+                if (activeStatus.size > 0 && !activeStatus.has(bird.migration)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            renderBirdCards(filtered);
+            
+            const noResults = document.getElementById('no-results');
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400">冇搵到符合嘅鳥。</div>`;
-                return;
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
             }
+        }
 
-            filtered.forEach(bird => {
+        function renderBirdCards(filteredBirds) {
+            const grid = document.getElementById('bird-grid');
+            grid.innerHTML = '';
+
+            filteredBirds.forEach(bird => {
                 const card = document.createElement('div');
-                card.className = `bird-card bg-white border border-stone-200 rounded-2xl p-5 flex flex-col h-full`;
+                card.className = `bird-card bg-white border border-stone-200 rounded-3xl overflow-hidden flex flex-col h-full shadow-sm`;
+                
+                let accentColor = '#166534';
+                if (bird.taxonomy === '雁鴨類') accentColor = '#0e7490';
+                else if (bird.taxonomy === '鷺類') accentColor = '#0f766e';
+                else if (bird.taxonomy === '猛禽類') accentColor = '#9f1239';
+                else if (bird.taxonomy === '鴿類') accentColor = '#854d0e';
+                else if (bird.taxonomy === '啄木鳥類') accentColor = '#c2410f';
+                else if (bird.taxonomy === '雀形目') accentColor = '#4338ca';
 
-                let featuresHTML = bird.features.map(f => `<li class="text-xs leading-snug">${f}</li>`).join('');
+                let originClass = 'bg-emerald-100 text-emerald-800';
+                let originText = bird.origin;
+                if (bird.origin === '引入') {
+                    originClass = 'bg-amber-100 text-amber-800';
+                } else if (bird.origin === '入侵') {
+                    originClass = 'bg-rose-100 text-rose-800';
+                }
+
+                let migClass = 'bg-emerald-100 text-emerald-800';
+                if (bird.migration === '夏候鳥') migClass = 'bg-amber-100 text-amber-800';
+                else if (bird.migration === '冬候鳥') migClass = 'bg-sky-100 text-sky-800';
+                else if (bird.migration === '過境鳥') migClass = 'bg-orange-100 text-orange-800';
+
+                // Build notes as <ul>
+                let notesHtml = '<ul class="notes-ul list-disc pl-4 text-stone-600">';
+                bird.notes.forEach(note => {
+                    notesHtml += `<li>${note}</li>`;
+                });
+                notesHtml += '</ul>';
 
                 card.innerHTML = `
-                    <div class="flex-1">
-                        <div>
-                            <div class="font-semibold text-xl tracking-tight">${bird.english}</div>
-                            <div class="cantonese text-emerald-700 font-medium text-base">${bird.cantonese}</div>
-                            <div class="text-xs text-stone-500 italic mt-0.5">${bird.scientific}</div>
+                    <div class="card-header-accent" style="background: linear-gradient(to right, ${accentColor}, #4ade80);"></div>
+                    
+                    <div class="p-5 flex flex-col flex-1">
+                        <!-- Header with emoji and names -->
+                        <div class="flex items-start gap-x-3 mb-3">
+                            <div class="bird-emoji flex-shrink-0 mt-0.5">${bird.emoji}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-2xl tracking-tight text-stone-900 leading-none">${bird.english}</div>
+                                <div class="text-emerald-700 font-semibold text-lg mt-0.5">${bird.cantonese}</div>
+                                <div class="text-xs text-stone-500 italic mt-0.5">${bird.scientific}</div>
+                            </div>
                         </div>
-                        
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            <span class="inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600">${bird.type}</span>
-                            <span class="inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">${bird.status}</span>
+
+                        <!-- Badges -->
+                        <div class="flex flex-wrap gap-1.5 mb-4">
+                            <span class="taxonomy-badge px-2.5 py-0.5 text-xs font-semibold" style="background-color: ${accentColor}20; color: ${accentColor};">${bird.taxonomy}</span>
+                            
+                            <span class="taxonomy-badge px-2.5 py-0.5 text-xs font-semibold ${migClass}">
+                                ${bird.migration}
+                            </span>
+                            
+                            <span class="taxonomy-badge px-2.5 py-0.5 text-xs font-semibold ${originClass}">
+                                ${originText}
+                            </span>
                         </div>
-                        
-                        <div class="mt-4">
-                            <div class="text-xs text-stone-500 mb-1.5">特徵</div>
-                            <ul class="text-stone-700 space-y-1 list-disc list-inside text-xs">
-                                ${featuresHTML}
-                            </ul>
+
+                        <!-- Ecology notes as bullets -->
+                        <div class="flex-1">
+                            <div class="text-emerald-800 text-xs font-semibold mb-1.5 tracking-wider">生態與識別特徵</div>
+                            ${notesHtml}
                         </div>
                     </div>
                 `;
+                
                 grid.appendChild(card);
             });
-            document.getElementById('results-count').textContent = `顯示 ${filtered.length} 隻鳥`;
         }
 
         function resetFilters() {
-            activeTypeFilters = [];
-            activeStatusFilters = [];
-            document.getElementById('search').value = '';
-            createFilterButtons('type-filters', types, activeTypeFilters);
-            createFilterButtons('status-filters', statuses, activeStatusFilters);
-            renderBirds();
+            activeTaxonomy.clear();
+            activeStatus.clear();
+            currentSearch = '';
+            document.getElementById('search-input').value = '';
+            
+            createFilterChips();
+            renderBirdCards(birds);
+            
+            document.getElementById('no-results').classList.add('hidden');
         }
 
-        function showCategoryModal() {
-            document.getElementById('category-modal').classList.remove('hidden');
-            document.getElementById('category-modal').classList.add('flex');
+        function showInfoModal() {
+            document.getElementById('info-modal').classList.remove('hidden');
+            document.getElementById('info-modal').classList.add('flex');
         }
 
-        function hideCategoryModal() {
-            const modal = document.getElementById('category-modal');
+        function hideInfoModal() {
+            const modal = document.getElementById('info-modal');
             modal.classList.remove('flex');
             modal.classList.add('hidden');
         }
 
-        function init() {
-            createFilterButtons('type-filters', types, activeTypeFilters);
-            createFilterButtons('status-filters', statuses, activeStatusFilters);
-            renderBirds();
+        // Initialize everything
+        function initializeApp() {
+            initializeTailwind();
+            
+            createFilterChips();
+            renderBirdCards(birds);
+            
+            // Keyboard support
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    document.getElementById('search-input').focus();
+                }
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('info-modal');
+                    if (!modal.classList.contains('hidden')) {
+                        hideInfoModal();
+                    } else {
+                        resetFilters();
+                    }
+                }
+            });
 
-            document.getElementById('search').addEventListener('input', renderBirds);
-            document.getElementById('results-count').textContent = `共 ${birds.length} 隻鳥`;
+            console.log('%c[Central Park Bird Guide] App initialized with ' + birds.length + ' species. All Chinese in traditional. Notes use <ul>.', 'color:#166534');
         }
 
-        init();
+        window.onload = initializeApp;
     </script>
 </body>
-</html>gi
+</html>
